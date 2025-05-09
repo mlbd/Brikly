@@ -2,6 +2,7 @@
 
 namespace Brikly;
 
+use Brikly\Admin\Options as OptionsManager;
 use Brikly\Core\Widget\Manager as WidgetManager;
 use Brikly\Core\Category\Manager as CategoryManager;
 
@@ -43,8 +44,12 @@ class Plugin {
      * Plugin constructor.
      */
     private function __construct() {
-        $this->init_components();
-        $this->init_hooks();
+        // Only initialize if Elementor is loaded and active
+        if (defined('ELEMENTOR_PATH') && did_action('elementor/loaded')) {
+            $this->init_components();
+            $this->init_hooks();
+            OptionsManager::instance()->register();
+        }
     }
 
     /**
@@ -54,7 +59,6 @@ class Plugin {
      */
     private function init_components() {
         // Initialize Widget Manager
-        $this->widget_manager = new WidgetManager();
 
         // Initialize Category Manager
         $this->category_manager = new CategoryManager();
@@ -66,16 +70,13 @@ class Plugin {
      * @return void
      */
     private function init_hooks() {
-        add_action('elementor/widgets/register', [$this->widget_manager, 'register_widgets']);
+        add_action('elementor/widgets/register', [$this, 'register_widgets']);
         add_action('elementor/elements/categories_registered', [$this->category_manager, 'register_categories']);
     }
 
-    /**
-     * Get Widget Manager instance.
-     *
-     * @return WidgetManager
-     */
-    public function widget_manager() {
-        return $this->widget_manager;
+    public function register_widgets($widgets_manager) {
+        $widget_manager = new WidgetManager();
+        // Initialize Widget Manager
+        $widget_manager->register_widgets($widgets_manager);
     }
 }

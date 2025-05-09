@@ -1,6 +1,6 @@
 <?php
 
-namespace Brikly\Widgets\Heading;
+namespace Brikly\Widgets\TeamMember;
 
 use Brikly\Core\Widget\Base;
 use Elementor\Controls_Manager;
@@ -12,7 +12,7 @@ class Widget extends Base {
      * @return string Widget name.
      */
     public function get_name() {
-        return 'brikly_heading';
+        return 'brikly_team_member';
     }
 
     /**
@@ -21,7 +21,7 @@ class Widget extends Base {
      * @return string Widget title.
      */
     public function get_title() {
-        return esc_html__('Brikly Heading', 'brikly');
+        return esc_html__('Team Member', 'brikly');
     }
 
     /**
@@ -30,7 +30,7 @@ class Widget extends Base {
      * @return string Widget icon.
      */
     public function get_icon() {
-        return 'eicon-heading';
+        return 'eicon-person';
     }
 
     /**
@@ -39,6 +39,7 @@ class Widget extends Base {
      * @return array Widget keywords.
      */
     public function get_keywords() {
-        return ['heading', 'title', 'text'];
+        return ['team', 'member', 'person', 'staff'];
     }
+
 }

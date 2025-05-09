@@ -33,19 +33,22 @@ abstract class Base extends Widget_Base {
      */
     public function __construct($data = [], $args = null) {
         parent::__construct($data, $args);
-        
-        // Initialize Model and View
-        $model_class = str_replace('\\Widget\\', '\\Model\\', get_class($this));
-        $view_class = str_replace('\\Widget\\', '\\View\\', get_class($this));
-        
-        if (class_exists($model_class)) {
+    
+        $original_class = get_class($this);
+    
+        $model_class = str_replace('\\Widget\\', '\\Model\\', $original_class);
+        $view_class  = str_replace('\\Widget\\', '\\View\\', $original_class);
+    
+        // Avoid recursion: don't instantiate if the class name didn't actually change
+        if ($model_class !== $original_class && class_exists($model_class)) {
             $this->model = new $model_class();
         }
-        
-        if (class_exists($view_class)) {
+    
+        if ($view_class !== $original_class && class_exists($view_class)) {
             $this->view = new $view_class();
         }
     }
+    
 
     /**
      * Get widget controls.

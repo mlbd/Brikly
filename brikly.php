@@ -18,9 +18,12 @@ if (!defined('ABSPATH')) {
 
 // Define plugin constants
 define('BRIKLY_VERSION', '1.0.0');
+define('BRIKLY_DB_VERSION', '1.0.0');
+define('BRIKLY_PATH', plugin_dir_path( __FILE__ )); //use for include files to other files
+define('BRIKLY_ROOT', dirname( __FILE__ ));
+define('BRIKLY_FILE_PATH', BRIKLY_ROOT . '/' . basename( __FILE__ ));
 define('BRIKLY_FILE', __FILE__);
-define('BRIKLY_PATH', plugin_dir_path(__FILE__));
-define('BRIKLY_URL', plugin_dir_url(__FILE__));
+define('BRIKLY_URL', plugins_url( '/', __FILE__ ));
 
 // Autoload classes
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
