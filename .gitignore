@@ -1,0 +1,17 @@
+# Node modules (if you're using npm/yarn)
+node_modules/
+
+# Composer vendor folder
+/vendor/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+*.log
+
+# PHPStorm / VS Code
+.idea/
+.vscode/
+
+# Build artifacts
+*.zip
