@@ -6,7 +6,8 @@
     "autoload": { 
         "psr-4": { 
             "Brikly\\": "src/",
-            "Brikly\\Admin\\": "src/Admin/"
+            "Brikly\\Admin\\": "src/Admin/",
+            "Brikly\\Includes\\": "includes/"
         }
     },
     "require": { "php": ">=7.4" },

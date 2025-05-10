@@ -1,0 +1,93 @@
+.settings-tab {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.settings-tab h2 {
+    font-size: 2rem;
+    color: #23282d;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 1rem;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.settings-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.settings-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.settings-card h3 {
+    font-size: 1.25rem;
+    color: #23282d;
+    margin-bottom: 1rem;
+}
+
+.settings-field {
+    margin-bottom: 1.5rem;
+}
+
+.settings-field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #444;
+}
+
+.settings-field input[type="text"],
+.settings-field input[type="number"],
+.settings-field select,
+.settings-field textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.settings-field input[type="text"]:focus,
+.settings-field input[type="number"]:focus,
+.settings-field select:focus,
+.settings-field textarea:focus {
+    border-color: #007cba;
+    background: white;
+    outline: none;
+}
+
+.settings-field input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+.settings-button {
+    background: #007cba;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.settings-button:hover {
+    background: #006ba1;
+}
+
+.settings-button:active {
+    transform: translateY(1px);
+}

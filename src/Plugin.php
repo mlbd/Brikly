@@ -2,6 +2,8 @@
 
 namespace Brikly;
 
+use Brikly\Includes\Api;
+use Brikly\Includes\Loader;
 use Brikly\Admin\Options as OptionsManager;
 use Brikly\Core\Widget\Manager as WidgetManager;
 use Brikly\Core\Category\Manager as CategoryManager;
@@ -48,6 +50,8 @@ class Plugin {
         if (defined('ELEMENTOR_PATH') && did_action('elementor/loaded')) {
             $this->init_components();
             $this->init_hooks();
+            Api::instance()->init();
+            Loader::instance()->init();
             OptionsManager::instance()->register();
         }
     }
