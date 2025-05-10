@@ -1,4 +1,4 @@
-import './Settings.css';
+import '../css/Settings.css';
 import React from 'react';
 
 const Settings = () => {

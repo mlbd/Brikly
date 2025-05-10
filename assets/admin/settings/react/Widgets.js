@@ -1,4 +1,4 @@
-import React from 'react'; 
+import React, { useEffect, useState } from 'react';
 import apiFetch from '@wordpress/api-fetch';
 
 // Initialize WordPress API fetch
@@ -13,10 +13,11 @@ const fallbackWidgets = [
 ];
 
 const Widgets = () => {
-    const [widgetStates, setWidgetStates] = React.useState([]);
-    const [isSaving, setIsSaving] = React.useState(false);
+    const [widgetStates, setWidgetStates] = useState([]);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const fetchWidgets = async () => {
             try {
                 const response = await apiFetch({ path: '/brikly/v1/widgets' });
@@ -28,6 +29,8 @@ const Widgets = () => {
             } catch (error) {
                 console.error('Failed to fetch widget states:', error);
                 setWidgetStates(fallbackWidgets);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -35,16 +38,17 @@ const Widgets = () => {
     }, []);
 
     const toggleWidget = async (index) => {
-        const newWidgetStates = [...widgetStates];
-        newWidgetStates[index].enabled = !newWidgetStates[index].enabled;
-        setWidgetStates(newWidgetStates);
+        const updatedWidgets = widgetStates.map((widget, i) =>
+            i === index ? { ...widget, enabled: !widget.enabled } : widget
+        );
+        setWidgetStates(updatedWidgets);
 
         try {
             setIsSaving(true);
             await apiFetch({
                 path: '/brikly/v1/widgets',
                 method: 'POST',
-                data: { widgets: newWidgetStates }
+                data: { widgets: updatedWidgets }
             });
         } catch (error) {
             console.error('Failed to save widget states:', error);
@@ -55,21 +59,25 @@ const Widgets = () => {
 
     return (
         <div className="widgets-tab">
-            {widgetStates.map((widget, index) => (
-                <div key={index} className="widget">
-                    <i className={widget.icon}></i>
-                    <span>{widget.name}</span>
-                    <label>
-                        <input
-                            type="checkbox"
-                            checked={widget.enabled}
-                            onChange={() => toggleWidget(index)}
-                        />
-                        Enable
-                    </label>
-                </div>
-            ))}
-            {isSaving && <p>Saving...</p>}
+            {isLoading ? (
+                <p>Loading widgets...</p>
+            ) : (
+                widgetStates.map((widget, index) => (
+                    <div key={widget.name} className="widget">
+                        <i className={widget.icon}></i>
+                        <span>{widget.name}</span>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={widget.enabled}
+                                onChange={() => toggleWidget(index)}
+                            />
+                            Enable
+                        </label>
+                    </div>
+                ))
+            )}
+            {isSaving && <p>Saving changes...</p>}
         </div>
     );
 };

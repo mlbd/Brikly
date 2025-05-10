@@ -29,7 +29,11 @@ class Api {
     }
 
     public function register_routes() {
-        error_log('Brikly REST API registered');
+        register_rest_route('brikly/v1', '/widgets', [
+            'methods'  => 'GET',
+            'callback' => [$this, 'get_widgets'],
+            'permission_callback' => '__return_true', // Adjust for security
+        ]);
         register_rest_route('brikly/v1', '/widgets', [
             'methods' => 'POST',
             'callback' => [$this, 'update_widgets'],
@@ -51,6 +55,14 @@ class Api {
                 ]
             ]
         ]);
+    }
+    
+    public function get_widgets() {
+        $widgets = get_option('brikly_widgets_list');
+        if (!$widgets) {
+            return new \WP_REST_Response([], 200); // Return empty array if no option saved
+        }
+        return new \WP_REST_Response($widgets, 200);
     }
 
     public function update_widgets($request) {

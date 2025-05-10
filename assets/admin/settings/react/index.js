@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './Admin.css';
+import '../css/Admin.css';
 import { HashRouter as Router, Route, Switch, NavLink, useLocation, Redirect } from 'react-router-dom';
 import Widgets from './Widgets';
 import Tools from './Tools';
