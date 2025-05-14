@@ -9,7 +9,8 @@ if (apiFetch && typeof apiFetch.use === 'function' && typeof apiFetch.createRoot
 const fallbackWidgets = [
     { name: 'Team Member', icon: 'eicon-person', enabled: true },
     { name: 'Heading', icon: 'eicon-heading', enabled: true },
-    { name: 'Info Box', icon: 'eicon-info-box', enabled: true }
+    { name: 'Info Box', icon: 'eicon-info-box', enabled: true },
+    { name: 'Interactive Goal Tracker', icon: 'eicon-skill-bar', enabled: true }
 ];
 
 const Widgets = () => {
