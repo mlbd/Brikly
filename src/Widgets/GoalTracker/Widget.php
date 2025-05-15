@@ -9,6 +9,12 @@ use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Background;
 
 class Widget extends Base {
+    /**
+     * Get widget stylesheet.
+     *
+     * @return array Widget stylesheet.
+     * @since 1.0.0
+     **/
     public function get_script_depends() {
         return ['lottie-player', 'brikly-goal-tracker'];
     }
@@ -20,6 +26,10 @@ class Widget extends Base {
      */
     public function get_name() {
         return 'brikly_goal_tracker';
+    }
+
+    public function is_reload_preview_required() {
+        return true;
     }
 
     /**
@@ -132,6 +142,35 @@ class Widget extends Base {
             ]
         );
 
+        $this->add_control(
+            'trigger_event',
+            [
+                'label' => esc_html__('Trigger Animation On', 'brikly'),
+                'type' => Controls_Manager::SELECT,
+                'default' => 'view',
+                'options' => [
+                    'view' => esc_html__('When Widget is Viewed', 'brikly'),
+                    'hover' => esc_html__('On Hover', 'brikly'),
+                    'click' => esc_html__('On Click', 'brikly'),
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'event_repeater',
+            [
+                'label' => esc_html__('Repeat on Trigger', 'brikly'),
+                'type' => \Elementor\Controls_Manager::SWITCHER,
+                'label_on' => esc_html__('Yes', 'brikly'),
+                'label_off' => esc_html__('No', 'brikly'),
+                'return_value' => 'yes',
+                'default' => '',
+                'condition' => [
+                    'animation_type' => 'once',
+                ],
+            ]
+        );        
+
         $this->end_controls_section();
 
         // Style Tab
@@ -208,12 +247,21 @@ class Widget extends Base {
                     <div class="goal-tracker-progress-bar" style="width: <?php echo esc_attr($progress_percentage); ?>%"></div>
                 </div>
             </div>
+            <?php if (!empty($settings['lottie_url']['url'])): ?>
             <div class="goal-tracker-lottie" 
                 data-lottie-url="<?php echo esc_url($settings['lottie_url']['url']); ?>"
                 data-animation-type="<?php echo esc_attr($settings['animation_type']); ?>"
                 data-animation-direction="<?php echo esc_attr($settings['animation_direction']); ?>"
-                data-progress="<?php echo esc_attr($progress_percentage); ?>">
+                data-progress="<?php echo esc_attr($progress_percentage); ?>"
+                data-trigger-event="<?php echo esc_attr($settings['trigger_event']); ?>"
+                data-event-repeater="<?php echo esc_attr($settings['event_repeater']); ?>"
+                style="min-height: 200px;">
             </div>
+            <?php else: ?>
+            <div class="goal-tracker-no-animation">
+                <?php echo esc_html__('Please provide a Lottie animation URL in the widget settings.', 'brikly'); ?>
+            </div>
+            <?php endif; ?>
         </div>
         <?php
     }

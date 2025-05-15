@@ -78,6 +78,7 @@ class Plugin {
         add_action('elementor/widgets/register', [$this, 'register_widgets']);
         add_action('elementor/elements/categories_registered', [$this->category_manager, 'register_categories']);
         add_action('wp_enqueue_scripts', [$this, 'register_scripts']);
+        add_action('elementor/frontend/after_enqueue_scripts', [$this, 'register_scripts']);
         add_action('elementor/frontend/after_register_scripts', [$this, 'register_scripts']);
         add_action('elementor/preview/enqueue_scripts', [$this, 'register_scripts']);
     }
@@ -86,9 +87,9 @@ class Plugin {
         // Register Lottie Player
         wp_register_script(
             'lottie-player',
-            'https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js',
+            'https://unpkg.com/@lottiefiles/lottie-player@2.0.12/dist/lottie-player.js',
             [],
-            '5.12.2',
+            '2.0.12',
             true
         );
 

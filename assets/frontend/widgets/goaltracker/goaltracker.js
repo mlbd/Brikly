@@ -1,165 +1,128 @@
-(function($) {
-    'use strict';
+(function ($) {
+    function initLottieInScope(scope) {
+        const $containers = $(scope).find('.goal-tracker-lottie');
 
-    var BriklyGoalTracker = {
-        init: function() {
-            var self = this;
+        $containers.each(function () {
+            const $container = $(this);
 
-            // Ensure Lottie library is loaded
-            this.ensureLottieLibrary().then(function() {
-                // For non-Elementor frontend
-                if (typeof window.elementorFrontend === 'undefined') {
-                    self.initLottie();
-                    return;
-                }
+            // Prevent duplicate players
+            if ($container.find('lottie-player').length > 0) return;
 
-                // For Elementor frontend
-                // Register immediately if already initialized
-                elementorFrontend.hooks.addAction('frontend/element_ready/brikly_goal_tracker.default', function($element) {
-                    self.initLottie($element);
-                });
+            const url = $container.data('lottie-url');
+            const type = $container.data('animation-type'); // once / loop
+            const direction = $container.data('animation-direction');
+            const trigger = $container.data('trigger-event') || 'view';
+            const repeater = $container.data('event-repeater') === 'yes';
 
-                // Handle events like changes in the editor preview
-                self.bindEvents();
-            }).catch(function(error) {
-                console.error('Goal Tracker: Failed to load Lottie library:', error);
+            if (!url) return;
+
+            const $player = $('<lottie-player>', {
+                src: url,
+                background: 'transparent',
+                speed: '1',
+                style: 'width:100%;height:100%',
+                autoplay: false,
             });
-        },
 
-        ensureLottieLibrary: function() {
-            return new Promise(function(resolve, reject) {
-                if (typeof lottie !== 'undefined') {
-                    resolve();
-                    return;
+            if (type === 'loop') $player.attr('loop', '');
+            if (direction === 'reverse') $player.attr('direction', '-1');
+
+            $container.append($player);
+            const playerEl = $player[0];
+
+            const playIfNotAlreadyPlaying = async () => {
+                if (!playerEl.getLottie) return;
+                const lottie = await playerEl.getLottie();
+                const isPlaying = !lottie.isPaused && lottie.currentFrame > 0 && lottie.currentFrame < lottie.totalFrames;
+
+                if (!isPlaying) {
+                    playerEl.stop();
+                    playerEl.play();
                 }
+            };
 
-                // Try to load Lottie library if not already loaded
-                var script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js';
-                script.async = true;
-                script.onload = function() {
-                    if (typeof lottie !== 'undefined') {
-                        resolve();
-                    } else {
-                        reject(new Error('Lottie library failed to initialize'));
-                    }
-                };
-                script.onerror = function() {
-                    reject(new Error('Failed to load Lottie library'));
-                };
-                document.body.appendChild(script);
-            });
-        },
-
-        initLottie: function($scope) {
-            var $widgets = $scope ? $scope.find('.goal-tracker-widget') : $('.goal-tracker-widget');
-            
-            if (!$widgets.length) {
-                console.warn('Goal Tracker: No widgets found');
-                return;
-            }
-
-            $widgets.each(function() {
-                var $widget = $(this);
-                var $lottieContainer = $widget.find('.goal-tracker-lottie');
-                
-                if (!$lottieContainer.length) {
-                    console.warn('Goal Tracker: Lottie container not found in widget');
-                    return;
-                }
-
-                // Clean up existing animation if any
-                var existingAnimation = $lottieContainer.data('lottie-instance');
-                if (existingAnimation) {
-                    existingAnimation.destroy();
-                    $lottieContainer.removeData('lottie-instance');
-                }
-
-                var lottieUrl = $lottieContainer.data('lottie-url');
-                var animationType = $lottieContainer.data('animation-type');
-                var animationDirection = $lottieContainer.data('animation-direction');
-                var progress = parseFloat($lottieContainer.data('progress')) || 0;
-
-                if (!lottieUrl) {
-                    console.warn('Goal Tracker: No Lottie URL provided');
-                    return;
-                }
-
-                try {
-                    var animation = lottie.loadAnimation({
-                        container: $lottieContainer[0],
-                        renderer: 'svg',
-                        loop: animationType === 'loop',
-                        autoplay: false,
-                        path: lottieUrl,
-                        rendererSettings: {
-                            progressiveLoad: true,
-                            preserveAspectRatio: 'xMidYMid meet'
-                        }
+            // Trigger logic
+            switch (trigger) {
+                case 'view':
+                    const observer = new IntersectionObserver(entries => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                if (type === 'once') {
+                                    if (repeater) {
+                                        // Replay animation each time widget is in view
+                                        playIfNotAlreadyPlaying();
+                                    } else {
+                                        // Play once then disconnect observer
+                                        playerEl.play();
+                                        observer.disconnect();
+                                    }
+                                } else {
+                                    playerEl.play();
+                                }
+                            }
+                        });
                     });
+                    observer.observe($container[0]);
+                    break;
 
-                    animation.addEventListener('DOMLoaded', function() {
-                        console.log('Goal Tracker: Animation DOM elements created');
-                        
-                        // Set direction
-                        if (animationDirection === 'reverse') {
-                            animation.setDirection(-1);
-                        }
-
-                        // Handle progress-based animation control
-                        if (progress >= 100) {
-                            animation.goToAndPlay(animation.totalFrames - 1, true);
-                        } else if (progress > 0) {
-                            var frame = Math.floor((progress / 100) * animation.totalFrames);
-                            animation.goToAndStop(frame, true);
+                case 'hover':
+                    $container.on('mouseenter', async () => {
+                        if (type === 'once' && repeater) {
+                            await playIfNotAlreadyPlaying();
                         } else {
-                            animation.play();
+                            playerEl.play();
                         }
                     });
+                    break;
 
-                    animation.addEventListener('data_ready', function() {
-                        console.log('Goal Tracker: Animation data loaded successfully');
+                case 'click':
+                    $container.on('click', async () => {
+                        if (type === 'once' && repeater) {
+                            await playIfNotAlreadyPlaying();
+                        } else {
+                            playerEl.play();
+                        }
                     });
+                    break;
 
-                    animation.addEventListener('data_failed', function() {
-                        console.error('Goal Tracker: Failed to load animation data');
-                    });
+                default:
+                    playerEl.play();
+            }
+        });
+    }
 
-                    // Store animation instance
-                    $lottieContainer.data('lottie-instance', animation);
+    $(window).on('elementor/frontend/init', function () {
+        elementorFrontend.hooks.addAction(
+            'frontend/element_ready/brikly_goal_tracker.default',
+            function ($scope) {
+                const targetNode = $scope[0];
 
-                } catch (error) {
-                    console.error('Goal Tracker: Error initializing Lottie:', error);
-                }
-            });
-        },
+                const deepCheck = () => {
+                    const $lottie = $($scope).find('.goal-tracker-lottie');
+                    if ($lottie.length > 0) {
+                        initLottieInScope($scope);
+                        return true;
+                    }
+                    return false;
+                };
 
-        bindEvents: function() {
-            var self = this;
-            
-            if (window.elementorFrontend && window.elementorFrontend.isEditMode()) {
-                // Handle Elementor editor preview updates
-                elementor.channels.editor.on('change', function(view) {
-                    var $widget = view.$el.find('.goal-tracker-widget');
-                    if ($widget.length) {
-                        self.initLottie($widget.parent());
+                if (deepCheck()) return;
+
+                const observer = new MutationObserver((mutations, obs) => {
+                    if (deepCheck()) {
+                        obs.disconnect();
                     }
                 });
 
-                // Handle widget panel changes
-                elementor.channels.editor.on('panel:switch', function(panel) {
-                    var $widget = panel.$el.find('.goal-tracker-widget');
-                    if ($widget.length) {
-                        self.initLottie($widget.parent());
-                    }
+                observer.observe(targetNode, {
+                    childList: true,
+                    subtree: true,
                 });
             }
-        }
-    };
-
-    // Initialize on document ready
-    $(document).ready(function() {
-        BriklyGoalTracker.init();
+        );
     });
 
+    $(document).ready(function () {
+        initLottieInScope(document);
+    });
 })(jQuery);
