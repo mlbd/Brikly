@@ -44,27 +44,40 @@
             // Trigger logic
             switch (trigger) {
                 case 'view':
+                    let wasVisible = false;
+
                     const observer = new IntersectionObserver(entries => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                if (type === 'once') {
-                                    if (repeater) {
-                                        // Replay animation each time widget is in view
-                                        playIfNotAlreadyPlaying();
-                                    } else {
-                                        // Play once then disconnect observer
-                                        playerEl.play();
-                                        observer.disconnect();
-                                    }
-                                } else {
+                        entries.forEach(async entry => {
+                            const isVisibleNow = entry.isIntersecting;
+
+                            if (isVisibleNow && !wasVisible) {
+                                wasVisible = true;
+
+                                console.log('Widget is now visible:', $container[0]);
+
+                                // Reset animation and play again
+                                try {
+                                    const lottie = await playerEl.getLottie();
+                                    lottie.stop();
+                                    lottie.play();
+                                } catch (e) {
+                                    // fallback if getLottie is not available
+                                    playerEl.stop();
                                     playerEl.play();
                                 }
+
+                            } else if (!isVisibleNow && wasVisible) {
+                                wasVisible = false;
+                                console.log('Widget is now hidden:', $container[0]);
                             }
                         });
+                    }, {
+                        threshold: 0.5, // Adjust if needed
                     });
+
                     observer.observe($container[0]);
                     break;
-
+                    
                 case 'hover':
                     $container.on('mouseenter', async () => {
                         if (type === 'once' && repeater) {
