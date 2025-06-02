@@ -9,10 +9,13 @@
             if ($container.find('lottie-player').length > 0) return;
 
             const url = $container.data('lottie-url');
-            const type = $container.data('animation-type'); // once / loop
-            const direction = $container.data('animation-direction');
-            const trigger = $container.data('trigger-event') || 'view';
+            const type = $container.data('animation-type'); // 'once' or 'loop'
+            const direction = $container.data('animation-direction'); // 'forward' or 'reverse'
+            const trigger = $container.data('trigger-event') || 'view'; // 'click', 'hover', or 'view'
             const repeater = $container.data('event-repeater') === 'yes';
+
+            const targetOption = $container.data('trigger-target') || 'default';
+            const customSelector = $container.data('custom-selector') || '';
 
             if (!url) return;
 
@@ -40,6 +43,29 @@
                     playerEl.play();
                 }
             };
+
+            // Determine the target element based on selection
+            let $targetEl;
+            switch (targetOption) {
+                case 'section':
+                    $targetEl = $container.closest('.elementor-section');
+                    break;
+                case 'column':
+                    $targetEl = $container.closest('.elementor-column');
+                    break;
+                case 'custom':
+                    $targetEl = $(customSelector);
+                    break;
+                case 'widget':
+                    $targetEl = $container.closest('.elementor-widget');
+                    break;
+                default:
+                    $targetEl = $container;
+                    break;
+            }
+
+            // Fallback if target not found
+            if ($targetEl.length === 0) $targetEl = $container;
 
             // Trigger logic
             switch (trigger) {
@@ -105,37 +131,6 @@
     }
 
     $(window).on('elementor/frontend/init', function () {
-        elementorFrontend.hooks.addAction(
-            'frontend/element_ready/brikly_goal_tracker.default',
-            function ($scope) {
-                const targetNode = $scope[0];
-
-                const deepCheck = () => {
-                    const $lottie = $($scope).find('.goal-tracker-lottie');
-                    if ($lottie.length > 0) {
-                        initLottieInScope($scope);
-                        return true;
-                    }
-                    return false;
-                };
-
-                if (deepCheck()) return;
-
-                const observer = new MutationObserver((mutations, obs) => {
-                    if (deepCheck()) {
-                        obs.disconnect();
-                    }
-                });
-
-                observer.observe(targetNode, {
-                    childList: true,
-                    subtree: true,
-                });
-            }
-        );
-    });
-
-    $(document).ready(function () {
-        initLottieInScope(document);
+        elementorFrontend.hooks.addAction('frontend/element_ready/brikly_goal_tracker.default', initLottieInScope);
     });
 })(jQuery);

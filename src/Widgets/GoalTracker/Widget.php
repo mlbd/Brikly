@@ -169,7 +169,35 @@ class Widget extends Base {
                     'animation_type' => 'once',
                 ],
             ]
-        );        
+        );
+
+        $this->add_control(
+            'trigger_target',
+            [
+                'label' => esc_html__('Animation Trigger Target', 'brikly'),
+                'type' => Controls_Manager::SELECT,
+                'default' => 'default',
+                'options' => [
+                    'default' => esc_html__('Default', 'brikly'),
+                    'widget'  => esc_html__('On Widget', 'brikly'),
+                    'section' => esc_html__('On Section', 'brikly'),
+                    'column'  => esc_html__('On Column', 'brikly'),
+                    'custom'  => esc_html__('Custom', 'brikly'),
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'custom_trigger_selector',
+            [
+                'label' => esc_html__('Custom Trigger Selector', 'brikly'),
+                'type' => Controls_Manager::TEXT,
+                'placeholder' => esc_html__('#my-id or .my-class', 'brikly'),
+                'condition' => [
+                    'trigger_target' => 'custom',
+                ],
+            ]
+        );
 
         $this->end_controls_section();
 
@@ -255,6 +283,8 @@ class Widget extends Base {
                 data-progress="<?php echo esc_attr($progress_percentage); ?>"
                 data-trigger-event="<?php echo esc_attr($settings['trigger_event']); ?>"
                 data-event-repeater="<?php echo esc_attr($settings['event_repeater']); ?>"
+                data-trigger-target="<?php echo esc_attr($settings['trigger_target']); ?>"
+                data-custom-trigger-selector="<?php echo esc_attr($settings['custom_trigger_selector']); ?>"
                 style="min-height: 200px;">
             </div>
             <?php else: ?>
