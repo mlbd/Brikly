@@ -8,6 +8,7 @@
  * Text Domain: brikly
  * License: GPL-2.0-or-later
  * Requires PHP: 7.4
+ * WordPress tested up to: 6.8.1
  * Elementor tested up to: 3.18.0
  * Elementor Pro tested up to: 3.18.0
  */
